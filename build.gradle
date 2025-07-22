@@ -1,0 +1,48 @@
+plugins {
+    id 'java' // Applies the Java plugin, providing tasks for building Java projects
+    id 'maven-publish'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+group = 'io.github.thiagoampj'
+def artifact = 'test-async'
+version = '1.0.0'
+
+repositories {
+    mavenLocal()
+    maven {
+        name = 'Sonatype Nexus'
+        url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+        credentials {
+            username = project.findProperty('sonatypeUsername') ?: System.getenv('SONATYPE_USERNAME')
+            password = project.findProperty('sonatypePassword') ?: System.getenv('SONATYPE_PASSWORD')
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = "$group"
+            artifactId = "$artifact"
+            version = "$version"
+
+            from components.java
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+}
+
